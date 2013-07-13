@@ -8,7 +8,7 @@
  * Description: Quag Writer Help is a...
  * Version:     0.0.1
  * Author:      Andrea Barghigiani, Daniele Scasciafratte
- * Author URI:  TODO
+ * Author URI:  test
  * Text Domain: plugin-name-locale
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
