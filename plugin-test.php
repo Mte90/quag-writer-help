@@ -242,6 +242,10 @@ function qwh_draw_options_page(){
 		echo '<input id="submit" class="button button-primary" type="submit" value="Save Changes" name="submit">
     </form>';
 	}else{
-		qwh_login();
+		echo '<iframe src="'.admin_url().'options-general.php?page=qwh_main&service=quag" />';
 	}
+}
+	
+if($_GET['service']=='quag'){
+	qwh_login();
 }
