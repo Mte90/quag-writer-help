@@ -245,12 +245,12 @@ function qwh_draw_options_page(){
 		echo '<div id="quag"></div>';
 	}
 }
-	
-if($_GET['service']=='quag'){
-	qwh_login();
-}
+
 add_action( 'admin_footer', 'my_action_javascript' );
 
+if($_GET['service']== 'quag') {
+	qwh_login();
+}
 function my_action_javascript() {
 ?>
 <script type="text/javascript" >
@@ -263,7 +263,10 @@ jQuery(document).ready(function($) {
 	// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
 	$.post(ajaxurl, data, function(response) {
 		$('#quag').html(response)
+	}).fail(function(){
+		window.location = '<? echo admin_url() ?>options-general.php?page=qwh_main&service=quag';
 	});
+	
 });
 </script>
 <?php
