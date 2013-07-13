@@ -242,10 +242,35 @@ function qwh_draw_options_page(){
 		echo '<input id="submit" class="button button-primary" type="submit" value="Save Changes" name="submit">
     </form>';
 	}else{
-		echo '<iframe src="'.admin_url().'options-general.php?page=qwh_main&service=quag" />';
+		echo '<div id="quag"></div>';
 	}
 }
 	
 if($_GET['service']=='quag'){
+	qwh_login();
+}
+add_action( 'admin_footer', 'my_action_javascript' );
+
+function my_action_javascript() {
+?>
+<script type="text/javascript" >
+jQuery(document).ready(function($) {
+
+	var data = {
+		action: 'my_action'
+	};
+
+	// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
+	$.post(ajaxurl, data, function(response) {
+		$('#quag').html(response)
+	});
+});
+</script>
+<?php
+}
+	
+add_action('wp_ajax_my_action', 'my_action_callback');
+
+function my_action_callback() {
 	qwh_login();
 }
