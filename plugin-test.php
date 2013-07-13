@@ -50,7 +50,8 @@ function qwh_install(){
         'app_secret' => false,
         'redirect_url' => RED_URL,
         'autenticate' => false,
-        'authorized' => false
+        'authorized' => false,
+        'app_created' => false
     );
     
     update_option( 'qwh_options', $qwh_options );
@@ -82,8 +83,13 @@ function qwh_draw_options_page(){
     <?php
 }
 
+
+if(qwh_check_key()==false){
 //Appoggio tutto alla creazione del pannello di admin
 add_action( 'admin_init', 'qwh_creo_form' );
+}else{
+	echo 1;
+}
 
 //ecco la funzione\
 function qwh_creo_form(){
@@ -143,4 +149,20 @@ function qwh_valido_input( $input ){
     $valid['redirect_url'] = RED_URL;
     
     return $valid;
+}
+//Funzione che verifica se le chiavi di quag sono inserite ed in caso positivo 
+//setta app_created come true
+function qwh_check_key(){
+	$options = get_option( 'qwh_options' );
+	$app_secret = $options['app_secret'];
+	$app_id = $options['app_id'];
+	$app_id = $options['app_id'];
+	if($options['app_created']) {
+		return true;
+	}elseif(!empty($app_secret) && !empty($app_id)) {
+		update_option('app_created', true);
+		return true;
+	}else{
+		return false;
+	}
 }
