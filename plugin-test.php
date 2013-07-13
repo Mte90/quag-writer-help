@@ -28,7 +28,7 @@ $plugin_dir = plugin_dir_path( __FILE__ );
 define( 'PLUGIN_BASENAME', 'quag_writer_help' );
 
 //Definisco redirect url
-define( 'RED_URL', plugins_url( 'inc/quag/quagexp.php', __FILE__ ) );
+define( 'RED_URL', plugins_url( admin_url().'options-general.php?page=qwh_main', __FILE__ ) );
 //var_dump( RED_URL );
 /*
  * Creo l'attivazione del mio plugin
