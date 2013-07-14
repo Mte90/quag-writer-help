@@ -18,8 +18,30 @@
 	<h2><?php echo esc_html( get_admin_page_title() ); ?></h2>
 
 	<?
-		$this->creo_form();
-		
+		if($this->check_key()==false){
+			$this->creo_form();
+		}else{
+			$this->login();
+			echo '<script type="text/javascript" >
+				jQuery(document).ready(function($) {
+					$(\'#quag_ok\').click(function() {
+						var data = {
+							action: \'quag_search\',
+							search: $(\'#quag_search\').val()
+						};
+
+						$.post(ajaxurl, data, function(response) {
+							$(\'#quag\').html(response)
+						}).fail(function(){
+							alert("error");
+						});
+					});
+				});
+				</script>';
+			echo '<input type="text" id="quag_search"/>
+			<input id="quag_ok" class="button button-primary" type="button" value="Cerca"/>
+			<div id="quag"></div>';
+		}
 	?>
 
 </div>

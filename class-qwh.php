@@ -86,6 +86,7 @@ class Quag_Writer_Help {
 
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
+		add_action( 'init', array( $this, 'load_library' ) );
 
 		// Add the options page and menu item.
 		 add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
@@ -98,7 +99,7 @@ class Quag_Writer_Help {
 		//add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		//add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
-		// Define custom functionality. Read more about actions and filters: http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
+		// Hook
 		add_action( 'admin_init', array( $this, 'load_setting' ) );
 		add_filter( 'TODO', array( $this, 'filter_method_name' ) );
 		
@@ -278,6 +279,9 @@ class Quag_Writer_Help {
 	 */
 	public function load_setting() {
 		register_setting( 'autenticazione_quag', 'qwh_options', array($this, 'valido_input') );
+		if($this->check_key()){
+			add_action('wp_ajax_quag_search', array($this,'quag_search_callback'));
+		}
 	}
 
 	/**
@@ -299,6 +303,7 @@ class Quag_Writer_Help {
 	 * @since    1.0.0
 	 */
 	public function load_library() {
+		ob_start();
 		require ('inc/quag/http.php');
 		require ('inc/quag/oauth_client.php');
 	}
@@ -313,7 +318,6 @@ class Quag_Writer_Help {
 		add_settings_field('qwh_app_sec', 'Inserisci App Secret', array($this, 'app_sec_cb'), self::PLUGIN_BASENAME, 'sez_autenticazione_quag' );
 		add_settings_field('qwh_redirect_url', 'Redirect URL', array($this, 'redirect_url_cb'), self::PLUGIN_BASENAME, 'sez_autenticazione_quag' );
 		//Show the form
-		settings_errors();
 		echo '<form action="options.php" method="post">';
 		settings_fields( 'autenticazione_quag' ); 
 		do_settings_sections( self::PLUGIN_BASENAME ); 
@@ -352,6 +356,7 @@ class Quag_Writer_Help {
 		//mostro il campo
 		echo $options['redirect_url'];
 	}
+	
 	//Funzione che mi controlla la validita
 	public function valido_input( $input ){
 		$valid = array();
@@ -366,5 +371,123 @@ class Quag_Writer_Help {
 		$valid['redirect_url'] = $this->red_url;
 		
 		return $valid;
+	}
+	
+	//Funzione che verifica se le chiavi di quag sono inserite ed in caso positivo 
+	//setta app_created come true
+	public function check_key(){
+		$options = get_option( 'qwh_options' );
+		$app_secret = $options['app_secret'];
+		$app_id = $options['app_id'];
+		if(isset($options['app_created'])) {
+			return true;
+		}elseif(!empty($app_secret) && !empty($app_id)) {
+			update_option('app_created', true);
+			return true;
+		}else{
+			return false;
+		}
+	}
+	public function quag_ouath_data(){
+		$client = new oauth_client_class;
+		$options = get_option( 'qwh_options' );
+			
+		// Edit those configurations!
+		$client -> client_id = $options['app_id'];
+		$client -> client_secret = $options['app_secret'];
+		$client -> redirect_uri = admin_url().'options-general.php?page=qwh_main';
+		$client -> dialog_url = 'https://www.quag.com/oauth2/authorize/?client_id={CLIENT_ID}&response_type=code&redirect_uri={REDIRECT_URI}&scope={SCOPE}&state={STATE}';
+		$client -> access_token_url = 'https://www.quag.com/oauth2/token/';
+		$client -> scope = 'user_resource thread_resource';
+		
+		// Dont't edit! Standard OAuth2 parameters.
+		$client -> request_token_url = '';
+		$client -> append_state_to_redirect_uri = '';
+		$client -> authorization_header = true;
+		$client -> url_parameters = true;
+		$client -> token_request_method = 'GET';
+		$client -> signature_method = 'HMAC-SHA1';
+		$client -> oauth_version = '2.0';
+		
+		return $client;
+		
+	}
+	//Avviamo il login
+	
+	public function login(){
+		
+		$client = $this->quag_ouath_data();
+		$api_url = "http://www.quag.com/v1/a_threads_by_interest/";
+		$api_params = array('q' => '');
+
+		if (strlen($client -> client_id) == 0 || strlen($client -> client_secret) == 0)
+			die('Please go to Quag API Apps page http://www.quag.com/account/clients , ' . 'create an application, set the client_id to App ID/API Key and client_secret with App Secret');
+
+		if (($success = $client -> Process())) {
+			if (strlen($client -> access_token))
+				$success = $client -> CallAPI($api_url . '?' . http_build_query($api_params), 'GET', array(), array('FailOnAccessError' => false, 'AsArray' => true), $results);
+		}
+		$success = $client -> Finalize($success);
+
+		if ($client -> exit)
+			exit ;
+		if ($success) {
+			echo '<br>Autorizzato da Quag :-)<br/>';
+		}
+	}
+	//Callack tramite ajax per la ricerca
+	public function quag_search_callback() {
+		
+		$client = $this->quag_ouath_data();
+		$api_url = "http://www.quag.com/v1/a_threads_by_interest/";
+		$api_params = array('q' => $_POST['search']);
+
+		if (($success = $client -> Process())) {
+			if (strlen($client -> access_token))
+				$success = $client -> CallAPI($api_url . '?' . http_build_query($api_params), 'GET', array(), array('FailOnAccessError' => false, 'AsArray' => true), $results);
+			}
+		$success = $client -> Finalize($success);
+
+		if ($client -> exit)
+			exit ;
+		if ($success) {
+			if (is_array($results)) {
+				echo '
+			<div id="a_threads_by_interest_container">
+				<h1>a_threads_by_interest: <b>' . $api_params['q'] . '</b> <a href="http://www.quag.com" target="_blank"><img alt="quag" src="http://www.quag.com/m/images/logo-quag.png"/></a></h1>
+				<div class="overflow_container">';
+				if (sizeof($results['threads']['internal'])) {
+					foreach ($results['threads']['internal'] as $internalThread) {
+						echo '
+					<div class="thread">
+						<div class="image">
+							<a href="' . $internalThread['author']['resource_uri'] . '" target="_blank">
+								<img src="' . $internalThread["author"]['avatar_url'] . '" alt="' . $internalThread["author"]["username"] . '\'s avatar" />
+								<span class="username">' . $internalThread["author"]["username"] . '</span>
+							</a>
+						</div>
+						<div class="data">
+							<div>';
+						foreach ($internalThread['quags'] as $quag)
+							echo '    
+								<span class="quag">' . $quag['quag'] . '</span>';
+						echo '    
+							</div>
+							<div>
+								<a href="' . $internalThread['resource_uri'] . '" target="_blank">' . $internalThread['title'] . '</a>
+							</div>                     
+							<div>
+								<span class="summary">' . $internalThread['summary'] . '</span>
+							</div>         
+						</div>
+						<div class="clearer">&nbsp;</div>
+					</div>';
+					}
+				}
+				echo '     
+				</div>
+			</div>';
+			}
+		}
 	}
 }
