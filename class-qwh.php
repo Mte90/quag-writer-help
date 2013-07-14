@@ -14,7 +14,7 @@
  *
  *
  * @package Quag_Writer_Help
- * @author    Andrea Barghigani e Daniele Scasciafratte
+ * @author  Andrea Barghigani e Daniele Scasciafratte
  */
 class Quag_Writer_Help {
 	
@@ -101,9 +101,8 @@ class Quag_Writer_Help {
 
 		// Hook
 		add_action( 'admin_init', array( $this, 'load_setting' ) );
-		add_filter( 'TODO', array( $this, 'filter_method_name' ) );
 		
-		//TODO: Verificare se la url del redirectè giusta
+		//TODO: Verificare se la url del redirect è giusta
 		$this->red_url = admin_url().'options-general.php?page=qwh_main';
 		$options = get_option( 'qwh_options' );
 		
@@ -278,23 +277,13 @@ class Quag_Writer_Help {
 	 * @since    1.0.0
 	 */
 	public function load_setting() {
+		//Imposto il salvataggio delle opzioni
 		register_setting( 'autenticazione_quag', 'qwh_options', array($this, 'valido_input') );
+		//verifico se le chiavi oauth sono inserite
 		if($this->check_key()){
+			//abilito quindi la callback ajax per la ricerca
 			add_action('wp_ajax_quag_search', array($this,'quag_search_callback'));
 		}
-	}
-
-	/**
-	 * NOTE:  Filters are points of execution in which WordPress modifies data
-	 *        before saving it or sending it to the browser.
-	 *
-	 *        WordPress Filters: http://codex.wordpress.org/Plugin_API#Filters
-	 *        Filter Reference:  http://codex.wordpress.org/Plugin_API/Filter_Reference
-	 *
-	 * @since    1.0.0
-	 */
-	public function filter_method_name() {
-		// TODO: Define your filter hook callback here
 	}
 	
 	/**
@@ -303,11 +292,18 @@ class Quag_Writer_Help {
 	 * @since    1.0.0
 	 */
 	public function load_library() {
+		//resetto la sessione altrimenti wordpress genera parecchi errori e non funziona niente
 		ob_start();
+		//Includo le librerie
 		require ('inc/quag/http.php');
 		require ('inc/quag/oauth_client.php');
 	}
 	
+	/**
+	 * Create the form for settings
+	 *
+	 * @since    1.0.0
+	 */
 	public function creo_form(){
 
 		//creo la sezione per le impostazioni
@@ -373,22 +369,35 @@ class Quag_Writer_Help {
 		return $valid;
 	}
 	
-	//Funzione che verifica se le chiavi di quag sono inserite ed in caso positivo 
+	/**
+	 * Check key on the DB
+	 *
+	 * @since    1.0.0
+	 */
+	 //Funzione che verifica se le chiavi di quag sono inserite ed in caso positivo 
 	//setta app_created come true
 	public function check_key(){
 		$options = get_option( 'qwh_options' );
 		$app_secret = $options['app_secret'];
 		$app_id = $options['app_id'];
+		//Verifico se è presente nel db
 		if(isset($options['app_created'])) {
 			return true;
-		}elseif(!empty($app_secret) && !empty($app_id)) {
+		}elseif(!empty($app_secret) or !empty($app_id)) {
+			//Se i campi delle chiavi non sono vuoti setto app_created
 			update_option('app_created', true);
 			return true;
 		}else{
 			return false;
 		}
 	}
-	public function quag_ouath_data(){
+	
+	/**
+	 * Set the config for oauth
+	 *
+	 * @since    1.0.0
+	 */
+	public function quag_oauth_data(){
 		$client = new oauth_client_class;
 		$options = get_option( 'qwh_options' );
 			
@@ -412,11 +421,16 @@ class Quag_Writer_Help {
 		return $client;
 		
 	}
-	//Avviamo il login
 	
+	/**
+	 * Do it a false search for authorized the app
+	 *
+	 * @since    1.0.0
+	 */
+	//Avviamo il login
 	public function login(){
 		
-		$client = $this->quag_ouath_data();
+		$client = $this->quag_oauth_data();
 		$api_url = "http://www.quag.com/v1/a_threads_by_interest/";
 		$api_params = array('q' => '');
 
@@ -435,11 +449,17 @@ class Quag_Writer_Help {
 			echo '<br>Autorizzato da Quag :-)<br/>';
 		}
 	}
-	//Callack tramite ajax per la ricerca
+	/**
+	 * Callback that show the search
+	 *
+	 * @since    1.0.0
+	 */
+	//Callback tramite ajax per la ricerca
 	public function quag_search_callback() {
 		
-		$client = $this->quag_ouath_data();
+		$client = $this->quag_oauth_data();
 		$api_url = "http://www.quag.com/v1/a_threads_by_interest/";
+		//Prendiamo il post del campo di ricerca
 		$api_params = array('q' => $_POST['search']);
 
 		if (($success = $client -> Process())) {
