@@ -90,9 +90,13 @@ class Quag_Writer_Help {
 
 		// Add the options page and menu item.
 		 add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
-
+        
+        //Add Meta Boxes
+        add_action( 'add_meta_boxes', array( $this, 'qwh_metaboxes' ) );
+        
+    
 		// Load admin style sheet and JavaScript.
-		//add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		//add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
 		// Load public-facing style sheet and JavaScript.
@@ -184,7 +188,11 @@ class Quag_Writer_Help {
 	 * @return    null    Return early if no settings page is registered.
 	 */
 	public function enqueue_admin_styles() {
-
+        //Cosi' funziona
+        wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'css/admin.css', __FILE__ ), array(), $this->version );
+        
+        /*
+            Cosi' non funziona
 		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
 			return;
 		}
@@ -192,7 +200,7 @@ class Quag_Writer_Help {
 		$screen = get_current_screen();
 		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
 			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'css/admin.css', __FILE__ ), array(), $this->version );
-		}
+		} */
 
 	}
 
@@ -285,6 +293,8 @@ class Quag_Writer_Help {
 		//Includo le librerie
 		require ('inc/quag/http.php');
 		require ('inc/quag/oauth_client.php');
+        //Non mi funge...
+		//require ('inc/metabox/init.php');
 	}
 	
 	/**
@@ -293,7 +303,7 @@ class Quag_Writer_Help {
 	 * @since    1.0.0
 	 */
 	public function creo_form(){
-
+        
 		//creo la sezione per le impostazioni
 		add_settings_section( 'sez_autenticazione_quag', 'Sezione Principale', array($this, 'campi_input'), self::PLUGIN_BASENAME );
 		
@@ -458,7 +468,7 @@ class Quag_Writer_Help {
 			if (is_array($results)) {
 				echo '
 			<div id="a_threads_by_interest_container">
-				<h1>a_threads_by_interest: <b>' . $api_params['q'] . '</b> <a href="http://www.quag.com" target="_blank"><img alt="quag" src="http://www.quag.com/m/images/logo-quag.png"/></a></h1>
+				<h4>Hai Cercato: <b>' . $api_params['q'] . '</b></h4>
 				<div class="overflow_container">';
 				if (sizeof($results['threads']['internal'])) {
 					foreach ($results['threads']['internal'] as $internalThread) {
@@ -466,18 +476,21 @@ class Quag_Writer_Help {
 					<div class="thread">
 						<div class="image">
 							<a href="' . $internalThread['author']['resource_uri'] . '" target="_blank">
-								<img src="' . $internalThread["author"]['avatar_url'] . '" alt="' . $internalThread["author"]["username"] . '\'s avatar" />
-								<span class="username">' . $internalThread["author"]["username"] . '</span>
+								<img class="avatar" src="' . $internalThread["author"]['avatar_url'] . '" alt="' . $internalThread["author"]["username"] . '\'s avatar" />
+								<span class="username">Autore: ' . $internalThread["author"]["username"] . '</span>
 							</a>
 						</div>
-						<div class="data">
-							<div>';
+						<div class="data">';
+							/*
+                                Al momento rimuovo questo che non mi interessa
+                            <div>';
 						foreach ($internalThread['quags'] as $quag)
 							echo '    
 								<span class="quag">' . $quag['quag'] . '</span>';
 						echo '    
 							</div>
-							<div>
+                            */
+				        echo '<div>
 								<a href="' . $internalThread['resource_uri'] . '" target="_blank">' . $internalThread['title'] . '</a>
 							</div>                     
 							<div>
@@ -494,4 +507,59 @@ class Quag_Writer_Help {
 			}
 		}
 	}
+    
+    /**
+	 * Callback per la creazione delle metabox
+	 *
+	 * @since    1.0.0
+	 */
+    public function qwh_metaboxes(){
+        $screens = array( 'post', 'page' );
+        
+        foreach( $screens as $s ){
+            add_meta_box(
+                'qwh-search-field',
+                __("Ricerca un Argomento su Quag", $this->plugin_slug ),
+                array( $this, 'qwh_mostra_search_field'),
+                $s,
+                'side',
+                'core'
+            );
+        }
+        
+    }
+    
+    public function qwh_mostra_search_field(){
+        $this->login();
+        
+        //Non sarebbe meglio spostare questo JS all'interno della cartella?
+        echo '<script type="text/javascript" >
+            jQuery(document).ready(function($) {
+            //Al click sul pulsante avvia la chiamata ajax
+                $(\'#quag_ok\').click(function() {
+                    var data = {
+                        action: \'quag_search\',
+                        search: $(\'#quag_search\').val()
+                    };
+
+                    $.post(ajaxurl, data, function(response) {
+                        $(\'#quag\').html(response)
+                    }).fail(function(){
+                        alert("error");
+                    });
+                });
+            });
+            </script>';
+        echo '<input type="text" id="quag_search"/>
+        <input id="quag_ok" class="button button-primary" type="button" value="Cerca"/>
+        <div id="quag"></div>';
+    }
+    
+    /**
+	 * Callback per salvare i valori contenuti in una metabox
+	 *
+	 * @since    1.0.0
+	 */
+    public function qwh_save_postdata( $post_id ){
+    }
 }
