@@ -102,15 +102,6 @@ class Quag_Writer_Help {
 		// Hook
 		add_action( 'admin_init', array( $this, 'load_setting' ) );
 		
-		//TODO: Verificare se la url del redirect è giusta
-		$this->red_url = admin_url().'options-general.php?page=qwh_main';
-		$options = get_option( 'qwh_options' );
-		
-		/*if($options['redirect_url'] != $this->red_url){
-			$options['redirect_url'] == $this->red_url;
-			update_option( 'qwh_options', $options );
-		}*/
-		
 	}
 
 	/**
@@ -152,10 +143,7 @@ class Quag_Writer_Help {
 			$qwh_options = array(
 				'app_id' => false,
 				'app_secret' => false,
-				'redirect_url' => $this->red_url,
-				'autenticate' => false,
-				'authorized' => false,
-				'app_created' => false
+				'redirect_url' => admin_url().'options-general.php?page=qwh_main'
 			);
 			
 			add_option( 'qwh_options', $qwh_options );
@@ -381,11 +369,7 @@ class Quag_Writer_Help {
 		$app_secret = $options['app_secret'];
 		$app_id = $options['app_id'];
 		//Verifico se è presente nel db
-		if(isset($options['app_created'])) {
-			return true;
-		}elseif(!empty($app_secret) or !empty($app_id)) {
-			//Se i campi delle chiavi non sono vuoti setto app_created
-			update_option('app_created', true);
+		if(!empty($app_secret) or !empty($app_id)) {
 			return true;
 		}else{
 			return false;
