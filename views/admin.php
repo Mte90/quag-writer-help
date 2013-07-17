@@ -52,8 +52,13 @@
 							return false;
 						}
 					});
+					$(\'.tag_top\').click(function() {
+							$(\'#quag_search\').val($(this).data(\'name\'));
+							ricerca();
+					});
 				});
 				</script>';
+			$this->qwh_stampa_top_tags();
 			echo '<input type="text" id="quag_search"/>
 			<input id="quag_ok" class="button button-primary" type="button" value="Cerca"/>
 			<div id="quag"></div>';

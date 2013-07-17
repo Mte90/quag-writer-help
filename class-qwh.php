@@ -560,11 +560,35 @@ class Quag_Writer_Help {
 						return false;
 					}
                 });
+			//Se clicca il tag avvia la ricerca
+				$(\'.tag_top\').click(function() {
+					$(\'#quag_search\').val($(this).data(\'name\'));
+					ricerca();
+				});
             });
             </script>';
         echo '<input type="text" id="quag_search"/>
         <input id="quag_ok" class="button button-primary" type="button" value="Cerca"/>
         <div id="quag"></div>';
+    }
+    
+    public function qwh_stampa_top_tags(){
+        $tags = get_tags("number=10");
+			if (empty($tags))
+                return;
+			$counts = $tag_links = array();
+			foreach ( (array) $tags as $tag ) {
+					$counts[$tag->name] = $tag->count;
+			}
+			asort($counts);
+			$counts = array_reverse( $counts, true );
+			$html = '<div class="post_tags">';
+			foreach ( $counts as $tag  => $count ) {
+				$html .= "<span class='tag_top' data-name='{$tag}'>";
+				$html .= "{$tag}</span> ";
+			}
+			$html .= '</div>';
+			echo $html;
     }
     
     /**
