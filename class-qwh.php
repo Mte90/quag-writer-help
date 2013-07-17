@@ -535,9 +535,8 @@ class Quag_Writer_Help {
         //Non sarebbe meglio spostare questo JS all'interno della cartella?
         echo '<script type="text/javascript" >
             jQuery(document).ready(function($) {
-            //Al click sul pulsante avvia la chiamata ajax
-                $(\'#quag_ok\').click(function() {
-                    var data = {
+				function ricerca() {
+					var data = {
                         action: \'quag_search\',
                         search: $(\'#quag_search\').val()
                     };
@@ -547,6 +546,19 @@ class Quag_Writer_Help {
                     }).fail(function(){
                         alert("error");
                     });
+				}
+            //Al click sul pulsante avvia la chiamata ajax
+                $(\'#quag_ok\').click(function() {
+                    ricerca();
+                });
+			//Se premo invio e ho il focus sul campo di ricerca avvia la chiamata ajax
+                $(\'#quag_search\').keypress(function(e){
+					if (e.which == 13 || e.keyCode == 13) {
+						ricerca();
+						e.preventDefault();
+						e.stopPropagation(); 
+						return false;
+					}
                 });
             });
             </script>';
