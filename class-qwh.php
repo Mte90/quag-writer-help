@@ -540,7 +540,7 @@ class Quag_Writer_Help {
                         action: \'quag_search\',
                         search: $(\'#quag_search\').val()
                     };
-
+					$(\'#quag\').html("Ricerca in corso...");
                     $.post(ajaxurl, data, function(response) {
                         $(\'#quag\').html(response)
                     }).fail(function(){
