@@ -425,6 +425,8 @@ class Quag_Writer_Help {
 	public function login(){
 		
 		$client = $this->quag_oauth_data();
+
+
 		$api_url = "http://www.quag.com/v1/a_threads_by_interest/";
 		$api_params = array('q' => '');
 
@@ -432,10 +434,12 @@ class Quag_Writer_Help {
 			die('Please go to Quag API Apps page http://www.quag.com/account/clients , ' . 'create an application, set the client_id to App ID/API Key and client_secret with App Secret');
 
 		if (($success = $client -> Process())) {
+			
 			if (strlen($client -> access_token))
 				$success = $client -> CallAPI($api_url . '?' . http_build_query($api_params), 'GET', array(), array('FailOnAccessError' => false, 'AsArray' => true), $results);
 		}
 		$success = $client -> Finalize($success);
+
 
 		if ($client -> exit)
 			exit ;
@@ -454,7 +458,7 @@ class Quag_Writer_Help {
 		$client = $this->quag_oauth_data();
 		$api_url = "http://www.quag.com/v1/a_threads_by_interest/";
 		//Prendiamo il post del campo di ricerca
-		$api_params = array('q' => $_POST['search']);
+		$api_params = array('q' => $_POST['search'] );
 
 		if (($success = $client -> Process())) {
 			if (strlen($client -> access_token))
@@ -466,39 +470,31 @@ class Quag_Writer_Help {
 			exit ;
 		if ($success) {
 			if (is_array($results)) {
-				echo '
-			<div id="a_threads_by_interest_container">
-				<h4>Hai Cercato: <b>' . $api_params['q'] . '</b></h4>
-				<div class="overflow_container">';
-				if (sizeof($results['threads']['internal'])) {
-					foreach ($results['threads']['internal'] as $internalThread) {
-						echo '
+				//echo "<pre>"; var_dump( $results["meta"] ); echo "</pre>";
+                ?>
+                    <div id="a_threads_by_interest_container">
+                        <!-- <p>Hai Cercato: <b><?php echo $api_params['q'] ?></b></p> -->
+                        <div id="int_users"><?php echo $results["meta"]["users"]; ?></div>
+                        <div class="overflow_container">
+                            
+                            
+                <?php
+				    if (sizeof($results['threads']['internal'])) {
+					   foreach ($results['threads']['internal'] as $internalThread) {
+                ?>
+				
 					<div class="thread">
-						<div class="image">
-							<a href="' . $internalThread['author']['resource_uri'] . '" target="_blank">
-								<img class="avatar" src="' . $internalThread["author"]['avatar_url'] . '" alt="' . $internalThread["author"]["username"] . '\'s avatar" />
-								<span class="username">Autore: ' . $internalThread["author"]["username"] . '</span>
-							</a>
+						
+						<div class="data">
+                            <h4><a href="<?php echo $internalThread['resource_uri']; ?>" target="_blank">
+                                <?php echo $internalThread['title']; ?>
+                            </a></h4>
+                            <div>
+                                <span class="summary"><?php echo $internalThread['summary']; ?></span>
+                            </div>         
 						</div>
-						<div class="data">';
-							/*
-                                Al momento rimuovo questo che non mi interessa
-                            <div>';
-						foreach ($internalThread['quags'] as $quag)
-							echo '    
-								<span class="quag">' . $quag['quag'] . '</span>';
-						echo '    
-							</div>
-                            */
-				        echo '<div>
-								<a href="' . $internalThread['resource_uri'] . '" target="_blank">' . $internalThread['title'] . '</a>
-							</div>                     
-							<div>
-								<span class="summary">' . $internalThread['summary'] . '</span>
-							</div>         
-						</div>
-						<div class="clearer">&nbsp;</div>
-					</div>';
+					</div>
+                <?php
 					}
 				}
 				echo '     
@@ -567,8 +563,8 @@ class Quag_Writer_Help {
 				});
             });
             </script>';
-        echo '<input type="text" id="quag_search"/>
-        <input id="quag_ok" class="button button-primary" type="button" value="Cerca"/>
+        echo '<div id="search-form"><input type="text" id="quag_search"/>
+        <input id="quag_ok" class="button button-primary" type="button" value="Cerca"/></div>
         <div id="quag"></div>';
     }
     
@@ -597,5 +593,15 @@ class Quag_Writer_Help {
 	 * @since    1.0.0
 	 */
     public function qwh_save_postdata( $post_id ){
+    }
+
+    /**
+     * Funzione che mi permette di sapere con che account sono collegato
+     *
+     * mi sembra di aver capito che con queste API non e' possibile
+     * ricevere delle informazioni riguardanti gli utenti a p
+     */
+    public function qwh_who_are_me(){
+    	
     }
 }
