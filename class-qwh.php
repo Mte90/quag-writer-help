@@ -598,7 +598,10 @@ class Quag_Writer_Help {
 			$terms[] = $name->name;
 		}
 		
-		print_r($terms);
+		echo 'I termini più utilizzati nel sito sono: ';
+		foreach ( $terms as $term ) {
+			echo $term.', ';
+		}
 	}
     
     public function qwh_stampa_top_tags(){
