@@ -431,7 +431,7 @@ class Quag_Writer_Help {
 		if ($client -> exit)
 			exit ;
 		if ($success) {
-			echo '<br>Autorizzato da Quag :-)<br/>';
+			echo '<br>Autorizzato da Quag :-)<br/><br/>';
 		}
 	}
 	/**
@@ -550,8 +550,11 @@ class Quag_Writer_Help {
 		
 		echo 'I termini più utilizzati nel sito sono: ';
 		foreach ( $terms as $term ) {
-			echo $term.', ';
+			echo "<span class='tag_top' data-name='{$term}'>{$term}</span>, ";
 		}
+		echo '<input type="text" id="quag_search"/>
+		<input id="quag_ok" class="button button-primary" type="button" value="Cerca"/>
+		<div id="quag"></div>';
 	}
     
     public function qwh_stampa_top_tags(){
@@ -564,7 +567,7 @@ class Quag_Writer_Help {
 			}
 			asort($counts);
 			$counts = array_reverse( $counts, true );
-			$html = '<div class="post_tags">';
+			$html = '<div class="post_tags">Tag del sito: ';
 			foreach ( $counts as $tag  => $count ) {
 				$html .= "<span class='tag_top' data-name='{$tag}'>";
 				$html .= "{$tag}</span> ";
