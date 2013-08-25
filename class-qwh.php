@@ -94,6 +94,8 @@ class Quag_Writer_Help {
         //Add Meta Boxes
         add_action( 'add_meta_boxes', array( $this, 'qwh_metaboxes' ) );
         
+        //Add DashBoard Widget
+        add_action('wp_dashboard_setup', array( $this,'qwh_dashboard_widget'));
     
 		// Load admin style sheet and JavaScript.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
@@ -568,6 +570,16 @@ class Quag_Writer_Help {
         <input id="quag_ok" class="button button-primary" type="button" value="Cerca"/></div>
         <div id="quag"></div>';
     }
+	
+	function qwh_dashboard_widget() {
+		global $wp_meta_boxes;
+		
+		wp_add_dashboard_widget('qwh_widget_dashboard', 'Cerca l\'argomento del tuo prossimo articolo! ',array($this,'qwh_dashboard'));
+	}
+	
+	function qwh_dashboard() {
+		echo '';
+	}
     
     public function qwh_stampa_top_tags(){
         $tags = get_tags("number=10");
