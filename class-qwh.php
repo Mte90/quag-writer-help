@@ -578,7 +578,27 @@ class Quag_Writer_Help {
 	}
 	
 	function qwh_dashboard() {
-		echo '';
+		global $wpdb;
+		$terms = array();
+		//Faccio una query per avere gli id di 5 categorie con il maggior numero di post
+		$query = 'SELECT term_id FROM '.$wpdb->term_taxonomy.' WHERE taxonomy = "category" ORDER BY count ASC LIMIT 5';
+		$num = $wpdb->get_col($query);
+		//Ottengo il nome e lo metto in un array
+		foreach ( $num as $term ) {
+			$name = get_term_by('id',$term,'category');
+			$terms[] = $name->name;
+		}
+		
+		//Faccio una query per avere gli id di 5 tag con il maggior numero di post
+		$query = 'SELECT term_id FROM '.$wpdb->term_taxonomy.' WHERE taxonomy = "post_tag" ORDER BY count ASC LIMIT 5';
+		$num = $wpdb->get_col($query);
+		//Ottengo il nome e lo metto in un array
+		foreach ( $num as $term ) {
+			$name = get_term_by('id',$term,'post_tag');
+			$terms[] = $name->name;
+		}
+		
+		print_r($terms);
 	}
     
     public function qwh_stampa_top_tags(){
