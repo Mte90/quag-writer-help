@@ -502,6 +502,7 @@ class Quag_Writer_Help {
 			</div>';
 			}
 		}
+		die();
 	}
     
     /**
