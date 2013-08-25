@@ -9,7 +9,7 @@
  * @author    Your Name <email@example.com>
  * @license   GPL-2.0+
  * @link      http://example.com
- * @copyright 2013 Your Name or Company Name
+ * @copyright 2013 AndMore
  */
 ?>
 <div class="wrap">
@@ -25,39 +25,6 @@
 			//Effetto il login per l'autorizzazione
 			$this->login();
 			//Se già autorizzato non farà niente, mosrà solo Autorizzato da quag
-			echo '<script type="text/javascript" >
-				jQuery(document).ready(function($) {
-					function ricerca() {
-						var data = {
-							action: \'quag_search\',
-							search: $(\'#quag_search\').val()
-						};
-						$(\'#quag\').html("Ricerca in corso...");
-						$.post(ajaxurl, data, function(response) {
-							$(\'#quag\').html(response)
-						}).fail(function(){
-							alert("error");
-						});
-					}
-					//Al click sul pulsante avvia la chiamata ajax
-						$(\'#quag_ok\').click(function() {
-							ricerca();
-						});
-					//Se premo invio e ho il focus sul campo di ricerca avvia la chiamata ajax
-					$(\'#quag_search\').keypress(function(e){
-						if (e.which == 13 || e.keyCode == 13) {
-							ricerca();
-							e.preventDefault();
-							e.stopPropagation(); 
-							return false;
-						}
-					});
-					$(\'.tag_top\').click(function() {
-							$(\'#quag_search\').val($(this).data(\'name\'));
-							ricerca();
-					});
-				});
-				</script>';
 			$this->qwh_stampa_top_tags();
 			echo '<input type="text" id="quag_search"/>
 			<input id="quag_ok" class="button button-primary" type="button" value="Cerca"/>

@@ -57,7 +57,7 @@ class Quag_Writer_Help {
 	 *
 	 * @var      string
 	 */
-	protected $plugin_screen_hook_suffix = null;
+	protected $plugin_screen_hook_suffix = 'qwh_main';
 	
 	/**
 	* Return the Const PLUGIN_BASENAME
@@ -99,7 +99,8 @@ class Quag_Writer_Help {
     
 		// Load admin style sheet and JavaScript.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
-		//add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+
 
 		// Load public-facing style sheet and JavaScript.
 		//add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
@@ -190,20 +191,10 @@ class Quag_Writer_Help {
 	 * @return    null    Return early if no settings page is registered.
 	 */
 	public function enqueue_admin_styles() {
-        //Cosi' funziona
-        wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'css/admin.css', __FILE__ ), array(), $this->version );
         
-        /*
-            Cosi' non funziona
-		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
-			return;
-		}
-
-		$screen = get_current_screen();
-		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
+        if ($this->qwh_check_if_quag()) {
 			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'css/admin.css', __FILE__ ), array(), $this->version );
-		} */
-
+        }
 	}
 
 	/**
@@ -214,16 +205,10 @@ class Quag_Writer_Help {
 	 * @return    null    Return early if no settings page is registered.
 	 */
 	public function enqueue_admin_scripts() {
-
-		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
-			return;
-		}
-
-		$screen = get_current_screen();
-		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
+		
+		if ($this->qwh_check_if_quag()) {
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery' ), $this->version );
 		}
-
 	}
 
 	/**
@@ -531,41 +516,6 @@ class Quag_Writer_Help {
     public function qwh_mostra_search_field(){
         $this->login();
         
-        //Non sarebbe meglio spostare questo JS all'interno della cartella?
-        echo '<script type="text/javascript" >
-            jQuery(document).ready(function($) {
-				function ricerca() {
-					var data = {
-                        action: \'quag_search\',
-                        search: $(\'#quag_search\').val()
-                    };
-					$(\'#quag\').html("Ricerca in corso...");
-                    $.post(ajaxurl, data, function(response) {
-                        $(\'#quag\').html(response)
-                    }).fail(function(){
-                        alert("error");
-                    });
-				}
-            //Al click sul pulsante avvia la chiamata ajax
-                $(\'#quag_ok\').click(function() {
-                    ricerca();
-                });
-			//Se premo invio e ho il focus sul campo di ricerca avvia la chiamata ajax
-                $(\'#quag_search\').keypress(function(e){
-					if (e.which == 13 || e.keyCode == 13) {
-						ricerca();
-						e.preventDefault();
-						e.stopPropagation(); 
-						return false;
-					}
-                });
-			//Se clicca il tag avvia la ricerca
-				$(\'.tag_top\').click(function() {
-					$(\'#quag_search\').val($(this).data(\'name\'));
-					ricerca();
-				});
-            });
-            </script>';
         echo '<div id="search-form"><input type="text" id="quag_search"/>
         <input id="quag_ok" class="button button-primary" type="button" value="Cerca"/></div>
         <div id="quag"></div>';
@@ -640,4 +590,21 @@ class Quag_Writer_Help {
     public function qwh_who_are_me(){
     	
     }
+	
+	//Carica i file css e js nell'amministrazione solo se in pagine con roba del plugin
+	function qwh_check_if_quag(){
+		global $pagenow;
+	
+		$screen = get_current_screen();
+		
+		//verifico se sono nella modifica/scrittura di un post/pagina/cp/dashboard
+		if(in_array( $pagenow, array( 'post.php', 'post-new.php', 'index.php' ) )) {
+			return true;
+		//verifico se nella pagina del plugin
+		} elseif ( $screen->id == $this->plugin_screen_hook_suffix ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
