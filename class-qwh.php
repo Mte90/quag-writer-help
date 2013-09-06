@@ -145,7 +145,9 @@ class Quag_Writer_Help {
 		*/
 		
 		// Verifico se la configurazione c'è altrimenti la creo
-		if( false == get_option( 'qwh_options' ) ) {    
+		
+		//Commentato perchè adesso non servono
+		/*if( false == get_option( 'qwh_options' ) ) {    
 			 
 			$qwh_options = array(
 				'app_id' => false,
@@ -154,7 +156,7 @@ class Quag_Writer_Help {
 			);
 			
 			add_option( 'qwh_options', $qwh_options );
-		} 	
+		}*/
 		
 	}
 
@@ -261,7 +263,8 @@ class Quag_Writer_Help {
 	 */
 	public function load_setting() {
 		//Imposto il salvataggio delle opzioni
-		register_setting( 'autenticazione_quag', 'qwh_options', array($this, 'valido_input') );
+		//Commentato perchè al momento perchè richiesto
+		//register_setting( 'autenticazione_quag', 'qwh_options', array($this, 'valido_input') );
 		//verifico se le chiavi oauth sono inserite
 		if($this->check_key()){
 			//abilito quindi la callback ajax per la ricerca
@@ -360,10 +363,11 @@ class Quag_Writer_Help {
 	 *
 	 * @since    1.0.0
 	 */
-	 //Funzione che verifica se le chiavi di quag sono inserite ed in caso positivo 
+	//Funzione che verifica se le chiavi di quag sono inserite ed in caso positivo 
 	//setta app_created come true
 	public function check_key(){
-		$options = get_option( 'qwh_options' );
+		//Disattivato perchè al momento non serve
+		/*$options = get_option( 'qwh_options' );
 		$app_secret = $options['app_secret'];
 		$app_id = $options['app_id'];
 		//Verifico se è presente nel db
@@ -371,7 +375,8 @@ class Quag_Writer_Help {
 			return true;
 		}else{
 			return false;
-		}
+		}*/
+		return true
 	}
 	
 	/**
