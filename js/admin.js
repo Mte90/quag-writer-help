@@ -2,7 +2,7 @@ jQuery(document).ready(function($) {
 	function ricerca(action) {
 		var data = {
 			action: 'quag_' + action,
-			search: $('#quag_search').val()
+			search: $('#quag_' + action).val()
 		};
 		$('#quag').html("Ricerca in corso...");
 		$.post(ajaxurl, data, function(response) {
@@ -45,5 +45,9 @@ jQuery(document).ready(function($) {
 	$('.tag_top').click(function() {
 		$('#quag_search').val($(this).data('name'));
 		ricerca('search');
-		});
+    });
+    $('.tag_dashboard_top').click(function() {
+		$('#quag_search_dashboard').val($(this).data('name'));
+		ricerca('search_dashboard');
+    });
 }); 

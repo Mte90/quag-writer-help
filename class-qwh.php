@@ -266,6 +266,7 @@ class Quag_Writer_Help {
 		if($this->check_key()){
 			//abilito quindi la callback ajax per la ricerca
 			add_action('wp_ajax_quag_search', array($this,'quag_search_callback'));
+			add_action('wp_ajax_quag_search_dashboard', array($this,'quag_search_dashboard_callback'));
 		}
 	}
 	
@@ -280,8 +281,6 @@ class Quag_Writer_Help {
 		//Includo le librerie
 		require ('inc/quag/http.php');
 		require ('inc/quag/oauth_client.php');
-        //Non mi funge...
-		//require ('inc/metabox/init.php');
 	}
 	
 	/**
@@ -450,17 +449,15 @@ class Quag_Writer_Help {
 		if (($success = $client -> Process())) {
 			if (strlen($client -> access_token))
 				$success = $client -> CallAPI($api_url . '?' . http_build_query($api_params), 'GET', array(), array('FailOnAccessError' => false, 'AsArray' => true), $results);
-			}
+        }
 		$success = $client -> Finalize($success);
 
 		if ($client -> exit)
 			exit ;
 		if ($success) {
 			if (is_array($results)) {
-				//echo "<pre>"; var_dump( $results["meta"] ); echo "</pre>";
                 ?>
                     <div id="a_threads_by_interest_container">
-                        <!-- <p>Hai Cercato: <b><?php echo $api_params['q'] ?></b></p> -->
                         <div id="int_users"><?php echo $results["meta"]["users"]; ?></div>
                         <div class="overflow_container">
                             
@@ -488,6 +485,50 @@ class Quag_Writer_Help {
 				</div>
 			</div>';
 			}
+		}
+		die();
+	}
+    
+    public function quag_search_dashboard_callback() {
+		
+		$api_url = "http://www.quag.com/v1/o_threads_by_interest/";
+		//Prendiamo il post del campo di ricerca
+		$api_params = array('q' => $_POST['search'] );
+
+		$json_contents = file_get_contents($api_url . '?' . http_build_query($api_params));
+        $array_contents = json_decode($json_contents, true);
+		if (is_array($array_contents)) {
+            ?>
+            <div id="o_threads_by_interest_container">
+                    <div class="overflow_container">
+            <?php
+		    if (sizeof($array_contents['threads']['internal'])) {
+			   foreach ($array_contents['threads']['internal'] as $internalThread) {
+            ?>
+							<div class="thread">
+							<div class="image">
+                <a href="<?php echo $internalThread['author']['resource_uri'] ?>" target="_blank">
+                <img src="<?php echo  $internalThread["author"]['avatar_url']?>" alt="<?php echo  $internalThread["author"]["username"] ?>\'s avatar" />
+                <span class="username"><?php echo  $internalThread["author"]["username"]?></span>
+                </a>
+                  </div>
+                <div class="data">
+                <? foreach ($internalThread['quags'] as $quag) { ?>
+                <span class="quag"><?php echo $quag['quag'] ?></span>
+                    <? } ?>
+                <div>
+                <a href="<?php echo $internalThread['resource_uri'] ?>" target="_blank"><?php echo $internalThread['title'] ?></a>
+                </div>  
+                         <div>
+                             <span class="summary"><?php echo $internalThread['summary']; ?></span>
+                         </div>         
+				</div>
+			</div>
+            <?php
+			}
+		}
+		echo '</div>
+		</div>';
 		}
 		die();
 	}
@@ -550,10 +591,10 @@ class Quag_Writer_Help {
 		
 		echo 'I termini più utilizzati nel sito sono: ';
 		foreach ( $terms as $term ) {
-			echo "<span class='tag_top' data-name='{$term}'>{$term}</span>, ";
+			echo "<span class='tag_dashboard_top' data-name='{$term}'>{$term}</span>, ";
 		}
-		echo '<input type="text" id="quag_search"/>
-		<input id="quag_ok" class="button button-primary" type="button" value="Cerca"/>
+		echo '<input type="text" id="quag_search_dashboard"/>
+		<input id="quag_ok_dashboard" class="button button-primary" type="button" value="Cerca"/>
 		<div id="quag"></div>';
 	}
     
