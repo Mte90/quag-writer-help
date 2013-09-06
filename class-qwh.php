@@ -266,6 +266,7 @@ class Quag_Writer_Help {
 		if($this->check_key()){
 			//abilito quindi la callback ajax per la ricerca
 			add_action('wp_ajax_quag_search', array($this,'quag_search_callback'));
+			//Commentato perchè non è necessario al momento fare un autenticazione per ottenere queste informazioni
 			/*add_action('wp_ajax_quag_search_dashboard', array($this,'quag_search_dashboard_callback'));*/
 		}
 	}
@@ -279,8 +280,9 @@ class Quag_Writer_Help {
 		//resetto la sessione altrimenti wordpress genera parecchi errori e non funziona niente
 		ob_start();
 		//Includo le librerie
-		require ('inc/quag/http.php');
-		require ('inc/quag/oauth_client.php');
+		//Commentato perchè non è necessario al momento fare un autenticazione per ottenere queste informazioni
+		//require ('inc/quag/http.php');
+		//require ('inc/quag/oauth_client.php');
 	}
 	
 	/**
@@ -377,7 +379,8 @@ class Quag_Writer_Help {
 	 *
 	 * @since    1.0.0
 	 */
-	public function quag_oauth_data(){
+	 //Commentato perchè non è necessario al momento fare un autenticazione per ottenere queste informazioni
+	/*public function quag_oauth_data(){
 		$client = new oauth_client_class;
 		$options = get_option( 'qwh_options' );
 			
@@ -400,7 +403,7 @@ class Quag_Writer_Help {
 		
 		return $client;
 		
-	}
+	}*/
 	
 	/**
 	 * Do it a false search for authorized the app
@@ -409,9 +412,8 @@ class Quag_Writer_Help {
 	 */
 	//Avviamo il login
 	public function login(){
-		
-		$client = $this->quag_oauth_data();
-
+		//Commentato perchè non è necessario al momento fare un autenticazione per ottenere queste informazioni
+		/*$client = $this->quag_oauth_data();
 
 		$api_url = "http://www.quag.com/v1/a_threads_by_interest/";
 		$api_params = array('q' => '');
@@ -431,14 +433,16 @@ class Quag_Writer_Help {
 			exit ;
 		if ($success) {
 			echo '<br>Autorizzato da Quag :-)<br/><br/>';
-		}
+		}*/
 	}
+	
 	/**
 	 * Callback that show the search
 	 *
 	 * @since    1.0.0
 	 */
 	//Callback tramite ajax per la ricerca
+	//Commentato perchè non è necessario al momento fare un autenticazione per ottenere queste informazioni
 	/*public function quag_search_callback() {
 		
 		$client = $this->quag_oauth_data();
