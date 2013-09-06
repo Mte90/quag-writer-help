@@ -1,7 +1,7 @@
 jQuery(document).ready(function($) {
 	function ricerca(action) {
 		var data = {
-			action: 'quag_' + action,
+			action: 'quag_search'/* + action*/,
 			search: $('#quag_' + action).val()
 		};
 		$('#quag').html("Ricerca in corso...");
@@ -42,7 +42,7 @@ jQuery(document).ready(function($) {
 	});
     
 	//Se clicca il tag avvia la ricerca
-	$('.tag_top').click(function() {
+	$('.tag_top,.tag_dashboard_top').click(function() {
 		$('#quag_search').val($(this).data('name'));
 		ricerca('search');
     });

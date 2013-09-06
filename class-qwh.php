@@ -266,7 +266,7 @@ class Quag_Writer_Help {
 		if($this->check_key()){
 			//abilito quindi la callback ajax per la ricerca
 			add_action('wp_ajax_quag_search', array($this,'quag_search_callback'));
-			add_action('wp_ajax_quag_search_dashboard', array($this,'quag_search_dashboard_callback'));
+			/*add_action('wp_ajax_quag_search_dashboard', array($this,'quag_search_dashboard_callback'));*/
 		}
 	}
 	
@@ -439,7 +439,7 @@ class Quag_Writer_Help {
 	 * @since    1.0.0
 	 */
 	//Callback tramite ajax per la ricerca
-	public function quag_search_callback() {
+	/*public function quag_search_callback() {
 		
 		$client = $this->quag_oauth_data();
 		$api_url = "http://www.quag.com/v1/a_threads_by_interest/";
@@ -487,9 +487,9 @@ class Quag_Writer_Help {
 			}
 		}
 		die();
-	}
+	}*/
     
-    public function quag_search_dashboard_callback() {
+    public function quag_search_callback() {
 		
 		$api_url = "http://www.quag.com/v1/o_threads_by_interest/";
 		//Prendiamo il post del campo di ricerca
