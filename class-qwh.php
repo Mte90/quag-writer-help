@@ -376,7 +376,7 @@ class Quag_Writer_Help {
 		}else{
 			return false;
 		}*/
-		return true
+		return true;
 	}
 	
 	/**
